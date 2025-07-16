@@ -14,29 +14,37 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-      
+
     - name: Compile TypeScript
       run: npm run compile
-      
+
+    - name: Setup display for VS Code tests
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb libnss3-dev libatk-bridge2.0-dev libdrm2 libxkbcommon-dev libxss1 libasound2-dev
+
     - name: Run tests
-      run: npm test
-      
+      run: xvfb-run -a npm run test:ci
+      env:
+        DISPLAY: ':99.0'
+        CI: 'true'
+
     - name: Package extension
       run: npm run package
-      
+
     - name: Get package info
       id: package
       run: |
