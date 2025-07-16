@@ -4,6 +4,19 @@
   "description": "Automatically start and manage MCP (Model Context Protocol) servers in VSCode",
   "version": "0.1.0",
   "publisher": "alankyshum",
+  "author": {
+    "name": "Alan Shum",
+    "email": "alan200994@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/alankyshum/vscode-mcp-autostarter#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alankyshum/vscode-mcp-autostarter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alankyshum/vscode-mcp-autostarter/issues"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -14,7 +27,9 @@
     "mcp",
     "model context protocol",
     "auto-start",
-    "server management"
+    "server management",
+    "automation",
+    "development tools"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -161,16 +176,21 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish",
+    "package:pre-release": "vsce package --pre-release",
+    "publish:pre-release": "vsce publish --pre-release"
   },
   "devDependencies": {
-    "@types/vscode": "^1.74.0",
-    "@types/node": "16.x",
-    "@types/mocha": "^10.0.0",
     "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/test-electron": "^2.2.0",
+    "@vscode/vsce": "^2.32.0",
     "eslint": "^8.28.0",
     "glob": "^8.0.0",
     "mocha": "^10.0.0",

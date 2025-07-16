@@ -1,0 +1,85 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Compile TypeScript
+      run: npm run compile
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Package extension
+      run: npm run package
+      
+    - name: Get package info
+      id: package
+      run: |
+        echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name || inputs.version }}
+        release_name: Release ${{ github.ref_name || inputs.version }}
+        body: |
+          ## What's Changed
+          
+          See the [CHANGELOG](./CHANGELOG.md) for detailed changes.
+          
+          ## Installation
+          
+          ### Option 1: Download VSIX (Recommended)
+          1. Download the `.vsix` file from the assets below
+          2. Open VS Code
+          3. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+          4. Type "Extensions: Install from VSIX..."
+          5. Select the downloaded `.vsix` file
+          
+          ### Option 2: From VS Code Marketplace
+          Search for "MCP Auto-Starter" in the VS Code Extensions marketplace.
+          
+          ## Requirements
+          - VS Code 1.74.0 or higher
+          - Node.js 16.x or higher (for MCP servers)
+        draft: false
+        prerelease: false
+        
+    - name: Upload VSIX to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.vsix
+        asset_name: ${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.vsix
+        asset_content_type: application/zip

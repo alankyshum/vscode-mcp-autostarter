@@ -1,5 +1,10 @@
 # MCP Auto-Starter
 
+[![GitHub release](https://img.shields.io/github/release/alankyshum/vscode-mcp-autostarter.svg)](https://github.com/alankyshum/vscode-mcp-autostarter/releases)
+[![GitHub downloads](https://img.shields.io/github/downloads/alankyshum/vscode-mcp-autostarter/total.svg)](https://github.com/alankyshum/vscode-mcp-autostarter/releases)
+[![CI](https://github.com/alankyshum/vscode-mcp-autostarter/workflows/CI/badge.svg)](https://github.com/alankyshum/vscode-mcp-autostarter/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A comprehensive VSCode extension that automatically starts and manages MCP (Model Context Protocol) servers with advanced monitoring, health checks, and user-friendly management features.
 
 ## ✨ Features
@@ -15,26 +20,46 @@ A comprehensive VSCode extension that automatically starts and manages MCP (Mode
 - **📝 Comprehensive logging** with detailed output channel
 - **⚙️ Configuration management** through VSCode settings with validation
 
-## Installation
+## 📦 Installation
 
-### Development Setup
+### 🎯 Quick Install (Recommended)
 
-1. Clone this repository
-2. Run `npm install` to install dependencies
-3. Run `npm run compile` to build the extension
-4. Press `F5` to open a new Extension Development Host window
+**[📥 Download Latest Release](https://github.com/alankyshum/vscode-mcp-autostarter/releases/latest)**
 
-### Install as VSIX Package
+1. **Download the `.vsix` file** from the latest release
+2. **Open VS Code**
+3. **Press `Ctrl+Shift+P`** (or `Cmd+Shift+P` on Mac)
+4. **Type "Extensions: Install from VSIX..."**
+5. **Select the downloaded `.vsix` file**
+6. **Restart VS Code** if prompted
 
-To install the extension permanently in your VS Code:
+### 🛍️ From VS Code Marketplace
 
-1. Install the VS Code Extension Manager: `npm install -g vsce`
-2. Package the extension: `vsce package`
-3. Install via Command Palette: `Ctrl+Shift+P` → "Extensions: Install from VSIX..." → Select the generated `.vsix` file
+*Coming soon! The extension will be available on the VS Code Marketplace.*
 
-### From Marketplace (Coming Soon)
+### 🔧 Development Setup
 
-The extension will be available on the VS Code Marketplace once published.
+For developers who want to build from source:
+
+1. **Clone this repository**
+   ```bash
+   git clone https://github.com/alankyshum/vscode-mcp-autostarter.git
+   cd vscode-mcp-autostarter
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Build the extension**
+   ```bash
+   npm run compile
+   ```
+
+4. **Test in development**
+   - Press `F5` to open a new Extension Development Host window
+   - Or package manually: `npm run package`
 
 ## 🚀 Quick Start
 
@@ -139,14 +164,40 @@ npm test
 
 Initial release with basic auto-start functionality and tree view management.
 
-## Contributing
+## 🚀 Releases
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+All releases are automatically built and published via GitHub Actions. You can find the latest releases here:
 
-## License
+**[📋 View All Releases](https://github.com/alankyshum/vscode-mcp-autostarter/releases)**
 
-MIT License - see LICENSE file for details.
+Each release includes:
+- 📦 **VSIX package** for direct installation
+- 📝 **Release notes** with changes and improvements
+- ✅ **Automated testing** ensures quality
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes** and add tests if applicable
+4. **Run tests**: `npm test`
+5. **Submit a pull request**
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Add tests for new features
+- Update documentation as needed
+- Ensure CI passes before submitting PR
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+**Made with ❤️ for the MCP community**
+
+If you find this extension helpful, please ⭐ star the repository and share it with others!
