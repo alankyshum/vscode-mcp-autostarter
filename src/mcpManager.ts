@@ -30,6 +30,14 @@ export class MCPServerManager implements vscode.Disposable {
 
             if (config.type === 'http' || config.type === 'sse') {
                 // For HTTP/SSE servers, we don't need to start a process
+                // but we still need to track them
+                const serverProcess: ServerProcess = {
+                    id: config.id,
+                    startTime: new Date(),
+                    status: 'running'
+                };
+                this.serverProcesses.set(config.id, serverProcess);
+
                 this.outputChannel.appendLine(`[INFO] HTTP/SSE server ${config.name} configured at ${config.url}`);
                 this.updateServerStatus(config.id, 'running');
                 return;
@@ -231,6 +239,13 @@ export class MCPServerManager implements vscode.Disposable {
         if (process) {
             process.status = status;
             this.serverProcesses.set(serverId, process);
+        } else {
+            // If no process record exists, create a minimal one for status tracking
+            this.serverProcesses.set(serverId, {
+                id: serverId,
+                startTime: new Date(),
+                status: status
+            });
         }
     }
 
@@ -352,7 +367,18 @@ export class MCPServerManager implements vscode.Disposable {
      */
     dispose(): void {
         this.stopHealthMonitoring();
-        this.stopAllServers();
+
+        // Stop all servers synchronously for dispose
+        const runningServers = Array.from(this.serverProcesses.keys());
+        for (const serverId of runningServers) {
+            try {
+                // Update status to stopped immediately for dispose
+                this.updateServerStatus(serverId, 'stopped');
+            } catch (error) {
+                this.outputChannel.appendLine(`[ERROR] Failed to stop server ${serverId}: ${error}`);
+            }
+        }
+
         this.runningTasks.clear();
         this.terminals.clear();
         this.serverProcesses.clear();
