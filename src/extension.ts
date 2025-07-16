@@ -54,42 +54,81 @@ function registerCommands(context: vscode.ExtensionContext) {
                 await toggleAutoStart(item.id);
             }
         }),
-        
+
         vscode.commands.registerCommand('mcp-autostarter.startServer', async (item: any) => {
             if (item && item.id) {
-                await serverManager.startServer(item.config);
+                try {
+                    await serverManager.startServer(item.config);
+                    vscode.window.showInformationMessage(`Started MCP server: ${item.name}`);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Failed to start server ${item.name}: ${error}`);
+                }
                 treeDataProvider.refresh();
             }
         }),
-        
+
         vscode.commands.registerCommand('mcp-autostarter.stopServer', async (item: any) => {
             if (item && item.id) {
-                await serverManager.stopServer(item.id);
+                try {
+                    await serverManager.stopServer(item.id);
+                    vscode.window.showInformationMessage(`Stopped MCP server: ${item.name}`);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Failed to stop server ${item.name}: ${error}`);
+                }
                 treeDataProvider.refresh();
             }
         }),
-        
+
         vscode.commands.registerCommand('mcp-autostarter.restartServer', async (item: any) => {
             if (item && item.id) {
-                await serverManager.stopServer(item.id);
-                setTimeout(async () => {
+                try {
+                    await serverManager.stopServer(item.id);
+                    // Wait a bit before restarting
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                     await serverManager.startServer(item.config);
-                    treeDataProvider.refresh();
-                }, 1000);
+                    vscode.window.showInformationMessage(`Restarted MCP server: ${item.name}`);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Failed to restart server ${item.name}: ${error}`);
+                }
+                treeDataProvider.refresh();
             }
         }),
-        
+
         vscode.commands.registerCommand('mcp-autostarter.refreshView', () => {
             treeDataProvider.refresh();
+            vscode.window.showInformationMessage('MCP servers view refreshed');
         }),
-        
+
         vscode.commands.registerCommand('mcp-autostarter.viewLogs', (item: any) => {
+            outputChannel.show();
+            if (item && item.name) {
+                outputChannel.appendLine(`[INFO] Showing logs for server: ${item.name}`);
+            }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.showServerDetails', async (item: any) => {
+            if (item && item.config) {
+                await showServerDetails(item);
+            }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.addServer', async () => {
+            await addNewServer();
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.editServer', async (item: any) => {
             if (item && item.id) {
-                outputChannel.show();
+                await editServer(item);
+            }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.removeServer', async (item: any) => {
+            if (item && item.id) {
+                await removeServer(item);
             }
         })
     ];
-    
+
     context.subscriptions.push(...commands);
 }
 
@@ -153,6 +192,128 @@ async function autoStartServers() {
     setTimeout(() => {
         treeDataProvider.refresh();
     }, 2000);
+}
+
+async function showServerDetails(item: any) {
+    const config = item.config;
+    const status = serverManager.getServerStatus(item.id);
+
+    const details = [
+        `**${item.name}**`,
+        '',
+        `**Status:** ${status}`,
+        `**Type:** ${config.type || 'stdio'}`,
+        `**Auto-start:** ${config.autoStart ? 'Enabled' : 'Disabled'}`,
+        `**Enabled:** ${config.enabled !== false ? 'Yes' : 'No'}`,
+        '',
+        config.command ? `**Command:** \`${config.command}\`` : '',
+        config.args && config.args.length > 0 ? `**Arguments:** \`${config.args.join(' ')}\`` : '',
+        config.url ? `**URL:** ${config.url}` : '',
+        config.cwd ? `**Working Directory:** \`${config.cwd}\`` : '',
+        config.env && Object.keys(config.env).length > 0 ? `**Environment Variables:** ${Object.keys(config.env).length} defined` : ''
+    ].filter(Boolean).join('\n');
+
+    const panel = vscode.window.createWebviewPanel(
+        'mcpServerDetails',
+        `MCP Server: ${item.name}`,
+        vscode.ViewColumn.One,
+        {}
+    );
+
+    panel.webview.html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>MCP Server Details</title>
+            <style>
+                body { font-family: var(--vscode-font-family); padding: 20px; }
+                pre { background: var(--vscode-textBlockQuote-background); padding: 10px; border-radius: 4px; }
+                .status-running { color: var(--vscode-testing-iconPassed); }
+                .status-stopped { color: var(--vscode-testing-iconFailed); }
+                .status-error { color: var(--vscode-testing-iconErrored); }
+            </style>
+        </head>
+        <body>
+            <div class="markdown-body">
+                ${details.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\`(.*?)\`/g, '<code>$1</code>')
+                        .replace(/\n/g, '<br>')}
+            </div>
+        </body>
+        </html>
+    `;
+}
+
+async function addNewServer() {
+    const name = await vscode.window.showInputBox({
+        prompt: 'Enter server name',
+        placeHolder: 'my-mcp-server'
+    });
+
+    if (!name) {
+        return;
+    }
+
+    const command = await vscode.window.showInputBox({
+        prompt: 'Enter server command',
+        placeHolder: 'node server.js'
+    });
+
+    if (!command) {
+        return;
+    }
+
+    try {
+        const config = vscode.workspace.getConfiguration('mcp');
+        const servers = config.get<Record<string, any>>('servers') || {};
+
+        const serverId = name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+        servers[serverId] = {
+            name: name,
+            command: command,
+            autoStart: false,
+            enabled: true
+        };
+
+        await config.update('servers', servers, vscode.ConfigurationTarget.Global);
+        treeDataProvider.refresh();
+        vscode.window.showInformationMessage(`Added MCP server: ${name}`);
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to add server: ${error}`);
+    }
+}
+
+async function editServer(item: any) {
+    vscode.window.showInformationMessage('Server editing will be implemented in a future version. For now, please edit the settings.json file directly.');
+}
+
+async function removeServer(item: any) {
+    const result = await vscode.window.showWarningMessage(
+        `Are you sure you want to remove the server "${item.name}"?`,
+        { modal: true },
+        'Remove'
+    );
+
+    if (result === 'Remove') {
+        try {
+            // Stop the server first if it's running
+            if (serverManager.getServerStatus(item.id) === 'running') {
+                await serverManager.stopServer(item.id);
+            }
+
+            const config = vscode.workspace.getConfiguration('mcp');
+            const servers = config.get<Record<string, any>>('servers') || {};
+            delete servers[item.id];
+
+            await config.update('servers', servers, vscode.ConfigurationTarget.Global);
+            treeDataProvider.refresh();
+            vscode.window.showInformationMessage(`Removed MCP server: ${item.name}`);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to remove server: ${error}`);
+        }
+    }
 }
 
 function getDisposables(): vscode.Disposable[] {

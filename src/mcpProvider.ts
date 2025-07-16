@@ -19,11 +19,21 @@ export class MCPTreeDataProvider implements vscode.TreeDataProvider<MCPServerIte
     getTreeItem(element: MCPServerItem): vscode.TreeItem {
         const item = new vscode.TreeItem(element.name, vscode.TreeItemCollapsibleState.None);
         item.contextValue = 'mcpServer';
-        
-        // Create tooltip with server information
+
+        // Create detailed tooltip with server information
         const autoStartText = element.autoStart ? 'ON' : 'OFF';
         const statusText = element.status.toUpperCase();
-        item.tooltip = `${element.name}\nAuto-start: ${autoStartText}\nStatus: ${statusText}`;
+        const serverType = element.config.type || 'stdio';
+        const command = element.config.command || element.config.url || 'N/A';
+
+        item.tooltip = new vscode.MarkdownString([
+            `**${element.name}**`,
+            `Type: ${serverType}`,
+            `Command: \`${command}\``,
+            `Auto-start: ${autoStartText}`,
+            `Status: ${statusText}`,
+            element.config.cwd ? `Working Directory: \`${element.config.cwd}\`` : ''
+        ].filter(Boolean).join('\n\n'));
 
         // Set description to show auto-start and status
         item.description = `[Auto: ${autoStartText}] ${this.getStatusIcon(element.status)} ${statusText}`;
@@ -49,9 +59,13 @@ export class MCPTreeDataProvider implements vscode.TreeDataProvider<MCPServerIte
                 item.iconPath = new vscode.ThemeIcon('circle-outline');
         }
 
-        // Store the full item data for command handlers
-        item.command = undefined; // No default command on click
-        
+        // Add command for double-click to show server details
+        item.command = {
+            command: 'mcp-autostarter.showServerDetails',
+            title: 'Show Server Details',
+            arguments: [element]
+        };
+
         return item;
     }
 

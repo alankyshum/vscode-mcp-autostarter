@@ -60,6 +60,26 @@
         "command": "mcp-autostarter.viewLogs",
         "title": "View Logs",
         "icon": "$(output)"
+      },
+      {
+        "command": "mcp-autostarter.showServerDetails",
+        "title": "Show Server Details",
+        "icon": "$(info)"
+      },
+      {
+        "command": "mcp-autostarter.addServer",
+        "title": "Add Server",
+        "icon": "$(add)"
+      },
+      {
+        "command": "mcp-autostarter.editServer",
+        "title": "Edit Server",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "mcp-autostarter.removeServer",
+        "title": "Remove Server",
+        "icon": "$(trash)"
       }
     ],
     "menus": {
@@ -68,28 +88,53 @@
           "command": "mcp-autostarter.refreshView",
           "when": "view == mcpServers",
           "group": "navigation"
+        },
+        {
+          "command": "mcp-autostarter.addServer",
+          "when": "view == mcpServers",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
+          "command": "mcp-autostarter.showServerDetails",
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "1_info"
+        },
+        {
           "command": "mcp-autostarter.toggleAutoStart",
-          "when": "view == mcpServers && viewItem == mcpServer"
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "2_control"
         },
         {
           "command": "mcp-autostarter.startServer",
-          "when": "view == mcpServers && viewItem == mcpServer"
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "2_control"
         },
         {
           "command": "mcp-autostarter.stopServer",
-          "when": "view == mcpServers && viewItem == mcpServer"
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "2_control"
         },
         {
           "command": "mcp-autostarter.restartServer",
-          "when": "view == mcpServers && viewItem == mcpServer"
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "2_control"
         },
         {
           "command": "mcp-autostarter.viewLogs",
-          "when": "view == mcpServers && viewItem == mcpServer"
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "3_logs"
+        },
+        {
+          "command": "mcp-autostarter.editServer",
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "4_edit"
+        },
+        {
+          "command": "mcp-autostarter.removeServer",
+          "when": "view == mcpServers && viewItem == mcpServer",
+          "group": "4_edit"
         }
       ]
     },
@@ -121,10 +166,14 @@
   "devDependencies": {
     "@types/vscode": "^1.74.0",
     "@types/node": "16.x",
+    "@types/mocha": "^10.0.0",
+    "@types/glob": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/test-electron": "^2.2.0",
     "eslint": "^8.28.0",
+    "glob": "^8.0.0",
+    "mocha": "^10.0.0",
     "typescript": "^4.9.4"
   }
 }
