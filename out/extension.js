@@ -6,11 +6,15 @@ const mcpManager_1 = require("./mcpManager");
 const mcpProvider_1 = require("./mcpProvider");
 const mcpConfigManager_1 = require("./mcpConfigManager");
 const performanceMonitor_1 = require("./performanceMonitor");
+const settingsManager_1 = require("./settingsManager");
+const serverConfigPanel_1 = require("./webview/serverConfigPanel");
 let serverManager;
 let treeDataProvider;
 let configManager;
 let outputChannel;
 let performanceMonitor;
+let settingsManager;
+let serverConfigPanel;
 function activate(context) {
     console.log('MCP Auto-Starter extension is now active!');
     try {
@@ -19,6 +23,10 @@ function activate(context) {
         outputChannel.appendLine('MCP Auto-Starter extension activated');
         // Initialize performance monitor
         performanceMonitor = new performanceMonitor_1.PerformanceMonitor(outputChannel);
+        // Initialize settings manager
+        settingsManager = new settingsManager_1.SettingsManager(outputChannel);
+        // Initialize server config panel
+        serverConfigPanel = new serverConfigPanel_1.ServerConfigPanel(outputChannel);
         // Initialize managers
         configManager = new mcpConfigManager_1.MCPConfigurationManager(outputChannel);
         serverManager = new mcpManager_1.MCPServerManager(outputChannel);
@@ -123,11 +131,23 @@ function registerCommands(context) {
             }
         }),
         vscode.commands.registerCommand('mcp-autostarter.addServer', async () => {
-            await addNewServer();
+            const timer = performanceMonitor.createCommandTimer('addServer');
+            try {
+                await serverConfigPanel.showConfigPanel();
+            }
+            finally {
+                timer();
+            }
         }),
         vscode.commands.registerCommand('mcp-autostarter.editServer', async (item) => {
-            if (item && item.id) {
-                await editServer(item);
+            if (item && item.config) {
+                const timer = performanceMonitor.createCommandTimer('editServer');
+                try {
+                    await serverConfigPanel.showConfigPanel(item.config);
+                }
+                finally {
+                    timer();
+                }
             }
         }),
         vscode.commands.registerCommand('mcp-autostarter.removeServer', async (item) => {
@@ -143,6 +163,44 @@ function registerCommands(context) {
         }),
         vscode.commands.registerCommand('mcp-autostarter.showPerformanceMetrics', () => {
             showPerformanceMetrics();
+        }),
+        vscode.commands.registerCommand('mcp-autostarter.exportSettings', async () => {
+            const timer = performanceMonitor.createCommandTimer('exportSettings');
+            try {
+                await settingsManager.exportSettings();
+            }
+            finally {
+                timer();
+            }
+        }),
+        vscode.commands.registerCommand('mcp-autostarter.importSettings', async () => {
+            const timer = performanceMonitor.createCommandTimer('importSettings');
+            try {
+                await settingsManager.importSettings();
+                treeDataProvider.refresh();
+            }
+            finally {
+                timer();
+            }
+        }),
+        vscode.commands.registerCommand('mcp-autostarter.resetSettings', async () => {
+            const timer = performanceMonitor.createCommandTimer('resetSettings');
+            try {
+                await settingsManager.resetSettings();
+                treeDataProvider.refresh();
+            }
+            finally {
+                timer();
+            }
+        }),
+        vscode.commands.registerCommand('mcp-autostarter.createBackup', async () => {
+            const timer = performanceMonitor.createCommandTimer('createBackup');
+            try {
+                await settingsManager.createBackup();
+            }
+            finally {
+                timer();
+            }
         })
     ];
     context.subscriptions.push(...commands);

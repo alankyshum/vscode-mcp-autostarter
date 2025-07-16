@@ -3,12 +3,16 @@ import { MCPServerManager } from './mcpManager';
 import { MCPTreeDataProvider } from './mcpProvider';
 import { MCPConfigurationManager } from './mcpConfigManager';
 import { PerformanceMonitor } from './performanceMonitor';
+import { SettingsManager } from './settingsManager';
+import { ServerConfigPanel } from './webview/serverConfigPanel';
 
 let serverManager: MCPServerManager;
 let treeDataProvider: MCPTreeDataProvider;
 let configManager: MCPConfigurationManager;
 let outputChannel: vscode.OutputChannel;
 let performanceMonitor: PerformanceMonitor;
+let settingsManager: SettingsManager;
+let serverConfigPanel: ServerConfigPanel;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('MCP Auto-Starter extension is now active!');
@@ -20,6 +24,12 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Initialize performance monitor
         performanceMonitor = new PerformanceMonitor(outputChannel);
+
+        // Initialize settings manager
+        settingsManager = new SettingsManager(outputChannel);
+
+        // Initialize server config panel
+        serverConfigPanel = new ServerConfigPanel(outputChannel);
 
         // Initialize managers
         configManager = new MCPConfigurationManager(outputChannel);
@@ -139,12 +149,22 @@ function registerCommands(context: vscode.ExtensionContext) {
         }),
 
         vscode.commands.registerCommand('mcp-autostarter.addServer', async () => {
-            await addNewServer();
+            const timer = performanceMonitor.createCommandTimer('addServer');
+            try {
+                await serverConfigPanel.showConfigPanel();
+            } finally {
+                timer();
+            }
         }),
 
         vscode.commands.registerCommand('mcp-autostarter.editServer', async (item: any) => {
-            if (item && item.id) {
-                await editServer(item);
+            if (item && item.config) {
+                const timer = performanceMonitor.createCommandTimer('editServer');
+                try {
+                    await serverConfigPanel.showConfigPanel(item.config);
+                } finally {
+                    timer();
+                }
             }
         }),
 
@@ -164,6 +184,44 @@ function registerCommands(context: vscode.ExtensionContext) {
 
         vscode.commands.registerCommand('mcp-autostarter.showPerformanceMetrics', () => {
             showPerformanceMetrics();
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.exportSettings', async () => {
+            const timer = performanceMonitor.createCommandTimer('exportSettings');
+            try {
+                await settingsManager.exportSettings();
+            } finally {
+                timer();
+            }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.importSettings', async () => {
+            const timer = performanceMonitor.createCommandTimer('importSettings');
+            try {
+                await settingsManager.importSettings();
+                treeDataProvider.refresh();
+            } finally {
+                timer();
+            }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.resetSettings', async () => {
+            const timer = performanceMonitor.createCommandTimer('resetSettings');
+            try {
+                await settingsManager.resetSettings();
+                treeDataProvider.refresh();
+            } finally {
+                timer();
+            }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.createBackup', async () => {
+            const timer = performanceMonitor.createCommandTimer('createBackup');
+            try {
+                await settingsManager.createBackup();
+            } finally {
+                timer();
+            }
         })
     ];
 
