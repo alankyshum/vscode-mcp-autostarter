@@ -29,7 +29,7 @@ export class SettingsManager {
             // Get current settings
             const mcpConfig = vscode.workspace.getConfiguration('mcp');
             const autoStarterConfig = vscode.workspace.getConfiguration('mcpAutoStarter');
-            
+
             const servers = mcpConfig.get<Record<string, any>>('servers') || {};
             const globalAutoStart = autoStarterConfig.get<boolean>('globalAutoStart', true);
 
@@ -63,7 +63,9 @@ export class SettingsManager {
             const saveUri = await vscode.window.showSaveDialog({
                 defaultUri: vscode.Uri.file(path.join(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '', 'mcp-settings.json')),
                 filters: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     'JSON Files': ['json'],
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     'All Files': ['*']
                 },
                 saveLabel: 'Export MCP Settings'
@@ -72,7 +74,7 @@ export class SettingsManager {
             if (saveUri) {
                 const jsonData = JSON.stringify(exportData, null, 2);
                 await vscode.workspace.fs.writeFile(saveUri, Buffer.from(jsonData, 'utf8'));
-                
+
                 vscode.window.showInformationMessage(`MCP settings exported to ${saveUri.fsPath}`);
                 this.outputChannel.appendLine(`[INFO] Settings exported to ${saveUri.fsPath}`);
             }
@@ -94,7 +96,9 @@ export class SettingsManager {
                 canSelectFolders: false,
                 canSelectMany: false,
                 filters: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     'JSON Files': ['json'],
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     'All Files': ['*']
                 },
                 openLabel: 'Import MCP Settings'
@@ -119,7 +123,7 @@ export class SettingsManager {
             // Show confirmation dialog
             const serverCount = importData.servers.length;
             const confirmMessage = `Import ${serverCount} server(s) from ${path.basename(fileUri.fsPath)}?\n\nThis will replace your current MCP server configurations.`;
-            
+
             const result = await vscode.window.showWarningMessage(
                 confirmMessage,
                 { modal: true },
@@ -133,7 +137,7 @@ export class SettingsManager {
 
             // Import settings
             await this.performImport(importData, result === 'Merge');
-            
+
             vscode.window.showInformationMessage(`Successfully imported ${serverCount} server(s)`);
             this.outputChannel.appendLine(`[INFO] Settings imported from ${fileUri.fsPath}`);
 
@@ -161,7 +165,7 @@ export class SettingsManager {
             if (!server.id || !server.name) {
                 return false;
             }
-            
+
             // Must have either command or url
             if (!server.command && !server.url) {
                 return false;
@@ -183,7 +187,7 @@ export class SettingsManager {
 
         // Import servers
         let existingServers: Record<string, any> = {};
-        
+
         if (merge) {
             existingServers = mcpConfig.get<Record<string, any>>('servers') || {};
         }
@@ -234,13 +238,14 @@ export class SettingsManager {
         try {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const backupFileName = `mcp-settings-backup-${timestamp}.json`;
-            
+
             // Use workspace folder or home directory
             const defaultPath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || require('os').homedir();
-            
+
             const saveUri = await vscode.window.showSaveDialog({
                 defaultUri: vscode.Uri.file(path.join(defaultPath, backupFileName)),
                 filters: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     'JSON Files': ['json']
                 },
                 saveLabel: 'Create Backup'

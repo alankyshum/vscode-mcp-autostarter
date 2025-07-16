@@ -264,7 +264,7 @@ async function autoStartServers() {
     }
 
     const servers = configManager.getMCPConfiguration();
-    const autoStartServers = Object.entries(servers).filter(([_, config]) =>
+    const autoStartServers = Object.entries(servers).filter(([serverId, config]) =>
         config.autoStart === true && config.enabled !== false
     );
 

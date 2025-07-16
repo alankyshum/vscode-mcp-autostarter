@@ -12,15 +12,28 @@
         "@typescript-eslint/naming-convention": [
             "warn",
             {
-                "selector": "import",
-                "format": ["camelCase", "PascalCase"]
+                "selector": "variableLike",
+                "format": ["camelCase"]
+            },
+            {
+                "selector": "typeLike",
+                "format": ["PascalCase"]
+            },
+            {
+                "selector": "memberLike",
+                "format": ["camelCase"],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "property",
+                "format": ["camelCase", "PascalCase"],
+                "leadingUnderscore": "allow"
             }
         ],
         "@typescript-eslint/semi": "warn",
         "curly": "warn",
         "eqeqeq": "warn",
-        "no-throw-literal": "warn",
-        "semi": "off"
+        "no-throw-literal": "warn"
     },
     "ignorePatterns": [
         "out",
