@@ -17,10 +17,24 @@ A comprehensive VSCode extension that automatically starts and manages MCP (Mode
 
 ## Installation
 
+### Development Setup
+
 1. Clone this repository
 2. Run `npm install` to install dependencies
 3. Run `npm run compile` to build the extension
 4. Press `F5` to open a new Extension Development Host window
+
+### Install as VSIX Package
+
+To install the extension permanently in your VS Code:
+
+1. Install the VS Code Extension Manager: `npm install -g vsce`
+2. Package the extension: `vsce package`
+3. Install via Command Palette: `Ctrl+Shift+P` → "Extensions: Install from VSIX..." → Select the generated `.vsix` file
+
+### From Marketplace (Coming Soon)
+
+The extension will be available on the VS Code Marketplace once published.
 
 ## 🚀 Quick Start
 

@@ -15,7 +15,6 @@ package-lock.json
 yarn.lock
 
 # VS Code specific
-.vscode/
 .vscode-test/
 *.vsix
 
