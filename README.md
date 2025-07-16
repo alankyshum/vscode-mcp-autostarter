@@ -1,15 +1,19 @@
 # MCP Auto-Starter
 
-A VSCode extension that automatically starts and manages MCP (Model Context Protocol) servers.
+A comprehensive VSCode extension that automatically starts and manages MCP (Model Context Protocol) servers with advanced monitoring, health checks, and user-friendly management features.
 
-## Features
+## ✨ Features
 
-- **Auto-start MCP servers** when VSCode starts
-- **Tree view** showing all configured MCP servers with their status
-- **Toggle auto-start** functionality for individual servers
-- **Start/Stop/Restart** servers manually
-- **Real-time status monitoring** with visual indicators
-- **Configuration management** through VSCode settings
+- **🚀 Auto-start MCP servers** when VSCode starts with intelligent retry logic
+- **📊 Tree view** showing all configured MCP servers with real-time status
+- **🔄 Toggle auto-start** functionality for individual servers
+- **⚡ Start/Stop/Restart** servers manually with one-click actions
+- **💚 Health monitoring** with automatic failure detection and recovery
+- **📈 Performance monitoring** with detailed metrics and issue detection
+- **🛠️ Easy server management** - add, edit, and remove servers through UI
+- **🎯 Multiple server types** - support for stdio, HTTP, and SSE servers
+- **📝 Comprehensive logging** with detailed output channel
+- **⚙️ Configuration management** through VSCode settings with validation
 
 ## Installation
 
@@ -18,25 +22,45 @@ A VSCode extension that automatically starts and manages MCP (Model Context Prot
 3. Run `npm run compile` to build the extension
 4. Press `F5` to open a new Extension Development Host window
 
-## Usage
+## 🚀 Quick Start
 
-### Viewing MCP Servers
+1. Install the extension
+2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+3. Run `MCP Auto-Starter: Add Server` to add your first MCP server
+4. Configure your server settings in the tree view
+5. Enable auto-start and enjoy automatic server management!
+
+## 📖 Usage
+
+### 👀 Viewing MCP Servers
 
 The extension adds a "MCP Servers" view to the Explorer sidebar, showing:
-- Server name and status
-- Auto-start configuration (ON/OFF)
-- Visual status indicators:
-  - ● Green circle: Running
-  - ○ Gray circle: Stopped
-  - ⚠ Yellow warning: Error
-  - ⟳ Spinning: Starting/Stopping
+- **Server name and status** with detailed tooltips
+- **Auto-start configuration** (ON/OFF)
+- **Server type** (stdio, HTTP, SSE)
+- **Visual status indicators**:
+  - 🟢 **Running** - Server is active and healthy
+  - ⚫ **Stopped** - Server is not running
+  - 🟡 **Starting** - Server is being started
+  - 🔴 **Error** - Server failed to start or crashed
+  - 🔄 **Stopping** - Server is being stopped
 
-### Managing Servers
+### 🎛️ Managing Servers
 
-Right-click on any server in the tree view to:
-- Toggle auto-start on/off
-- Start/Stop/Restart the server
-- View logs
+**Tree View Actions:**
+- **Double-click** any server to view detailed information
+- **Right-click** for context menu with options:
+  - Toggle auto-start on/off
+  - Start/Stop/Restart the server
+  - View server details
+  - Edit server configuration
+  - Remove server
+  - View logs
+
+**Toolbar Actions:**
+- **Refresh** - Update server status
+- **Add Server** - Create a new MCP server configuration
+- **Restart Failed Servers** - Restart all servers in error state
 
 ### Configuration
 
