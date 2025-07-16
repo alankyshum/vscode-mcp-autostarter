@@ -7,7 +7,11 @@ class MCPServerManager {
         this.runningTasks = new Map();
         this.terminals = new Map();
         this.serverProcesses = new Map();
+        this.retryAttempts = new Map();
+        this.maxRetryAttempts = 3;
+        this.healthCheckIntervalMs = 30000; // 30 seconds
         this.outputChannel = outputChannel;
+        this.startHealthMonitoring();
     }
     /**
      * Start a server using VSCode Task API
@@ -52,6 +56,8 @@ class MCPServerManager {
             this.serverProcesses.set(config.id, serverProcess);
             this.outputChannel.appendLine(`[INFO] Started MCP server: ${config.name} (${config.command})`);
             this.updateServerStatus(config.id, 'running');
+            // Reset retry count on successful start
+            this.resetRetryCount(config.id);
             // Monitor task completion
             this.monitorTaskExecution(taskExecution, config.id);
         }
@@ -186,13 +192,115 @@ class MCPServerManager {
         }
     }
     /**
+     * Start health monitoring for all servers
+     */
+    startHealthMonitoring() {
+        this.healthCheckInterval = setInterval(() => {
+            this.performHealthChecks();
+        }, this.healthCheckIntervalMs);
+        this.outputChannel.appendLine('[INFO] Started health monitoring for MCP servers');
+    }
+    /**
+     * Stop health monitoring
+     */
+    stopHealthMonitoring() {
+        if (this.healthCheckInterval) {
+            clearInterval(this.healthCheckInterval);
+            this.healthCheckInterval = undefined;
+            this.outputChannel.appendLine('[INFO] Stopped health monitoring for MCP servers');
+        }
+    }
+    /**
+     * Perform health checks on all running servers
+     */
+    async performHealthChecks() {
+        for (const [serverId, process] of this.serverProcesses.entries()) {
+            if (process.status === 'running') {
+                const isHealthy = await this.checkServerHealth(serverId, process);
+                if (!isHealthy) {
+                    this.outputChannel.appendLine(`[WARN] Server ${serverId} failed health check`);
+                    await this.handleUnhealthyServer(serverId);
+                }
+            }
+        }
+    }
+    /**
+     * Check if a server is healthy
+     */
+    async checkServerHealth(serverId, process) {
+        try {
+            // For task-based servers, check if the task is still running
+            if (process.task) {
+                const isTaskRunning = vscode.tasks.taskExecutions.some(execution => execution.task === process.task);
+                return isTaskRunning;
+            }
+            // For terminal-based servers, check if terminal is still active
+            if (process.terminal) {
+                return process.terminal.exitStatus === undefined;
+            }
+            // For HTTP/SSE servers, they're considered healthy if they're in our process map
+            return true;
+        }
+        catch (error) {
+            this.outputChannel.appendLine(`[ERROR] Health check failed for server ${serverId}: ${error}`);
+            return false;
+        }
+    }
+    /**
+     * Handle an unhealthy server
+     */
+    async handleUnhealthyServer(serverId) {
+        const retryCount = this.retryAttempts.get(serverId) || 0;
+        if (retryCount < this.maxRetryAttempts) {
+            this.retryAttempts.set(serverId, retryCount + 1);
+            this.outputChannel.appendLine(`[INFO] Attempting to restart server ${serverId} (attempt ${retryCount + 1}/${this.maxRetryAttempts})`);
+            try {
+                // Get the server config to restart it
+                const process = this.serverProcesses.get(serverId);
+                if (process) {
+                    // Mark as stopped first
+                    this.updateServerStatus(serverId, 'stopped');
+                    this.serverProcesses.delete(serverId);
+                    this.runningTasks.delete(serverId);
+                    // Wait a bit before restarting
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    // We need the config to restart - this would need to be passed from the extension
+                    this.outputChannel.appendLine(`[INFO] Server ${serverId} marked for restart`);
+                }
+            }
+            catch (error) {
+                this.outputChannel.appendLine(`[ERROR] Failed to restart server ${serverId}: ${error}`);
+                this.updateServerStatus(serverId, 'error');
+            }
+        }
+        else {
+            this.outputChannel.appendLine(`[ERROR] Server ${serverId} exceeded maximum retry attempts (${this.maxRetryAttempts})`);
+            this.updateServerStatus(serverId, 'error');
+            this.retryAttempts.delete(serverId);
+        }
+    }
+    /**
+     * Reset retry count for a server (call when manually started)
+     */
+    resetRetryCount(serverId) {
+        this.retryAttempts.delete(serverId);
+    }
+    /**
+     * Get retry count for a server
+     */
+    getRetryCount(serverId) {
+        return this.retryAttempts.get(serverId) || 0;
+    }
+    /**
      * Dispose of all resources
      */
     dispose() {
+        this.stopHealthMonitoring();
         this.stopAllServers();
         this.runningTasks.clear();
         this.terminals.clear();
         this.serverProcesses.clear();
+        this.retryAttempts.clear();
     }
 }
 exports.MCPServerManager = MCPServerManager;

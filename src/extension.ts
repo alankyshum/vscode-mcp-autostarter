@@ -32,6 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Setup configuration watcher
     const configWatcher = configManager.setupConfigurationWatcher(() => {
         treeDataProvider.refresh();
+        // Re-evaluate auto-start servers when configuration changes
+        setTimeout(() => {
+            autoStartServers();
+        }, 1000);
     });
     
     // Auto-start servers if enabled
@@ -126,6 +130,14 @@ function registerCommands(context: vscode.ExtensionContext) {
             if (item && item.id) {
                 await removeServer(item);
             }
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.restartAllFailedServers', async () => {
+            await restartAllFailedServers();
+        }),
+
+        vscode.commands.registerCommand('mcp-autostarter.startAllAutoStartServers', async () => {
+            await autoStartServers();
         })
     ];
 
@@ -154,20 +166,26 @@ async function toggleAutoStart(serverId: string) {
 
 async function autoStartServers() {
     const globalAutoStart = vscode.workspace.getConfiguration('mcpAutoStarter').get<boolean>('globalAutoStart', true);
-    
+
     if (!globalAutoStart) {
         outputChannel.appendLine('[INFO] Global auto-start is disabled');
         return;
     }
-    
+
     const servers = configManager.getMCPConfiguration();
-    const autoStartServers = Object.entries(servers).filter(([_, config]) => 
+    const autoStartServers = Object.entries(servers).filter(([_, config]) =>
         config.autoStart === true && config.enabled !== false
     );
-    
+
     outputChannel.appendLine(`[INFO] Auto-starting ${autoStartServers.length} servers`);
-    
+
     for (const [id, config] of autoStartServers) {
+        // Skip if already running
+        if (serverManager.getServerStatus(id) === 'running') {
+            outputChannel.appendLine(`[INFO] Server ${id} is already running, skipping auto-start`);
+            continue;
+        }
+
         try {
             const serverConfig = {
                 id,
@@ -180,18 +198,44 @@ async function autoStartServers() {
                 enabled: true,
                 type: config.type || 'stdio'
             };
-            
+
             await serverManager.startServer(serverConfig);
             outputChannel.appendLine(`[INFO] Auto-started server: ${id}`);
         } catch (error) {
             outputChannel.appendLine(`[ERROR] Failed to auto-start server ${id}: ${error}`);
         }
     }
-    
+
     // Refresh tree view after auto-start
     setTimeout(() => {
         treeDataProvider.refresh();
     }, 2000);
+}
+
+async function restartAllFailedServers() {
+    const servers = configManager.getAllServerConfigs();
+    const failedServers = servers.filter(config =>
+        serverManager.getServerStatus(config.id) === 'error'
+    );
+
+    if (failedServers.length === 0) {
+        vscode.window.showInformationMessage('No failed servers to restart');
+        return;
+    }
+
+    outputChannel.appendLine(`[INFO] Restarting ${failedServers.length} failed servers`);
+
+    for (const config of failedServers) {
+        try {
+            await serverManager.startServer(config);
+            outputChannel.appendLine(`[INFO] Restarted failed server: ${config.id}`);
+        } catch (error) {
+            outputChannel.appendLine(`[ERROR] Failed to restart server ${config.id}: ${error}`);
+        }
+    }
+
+    treeDataProvider.refresh();
+    vscode.window.showInformationMessage(`Attempted to restart ${failedServers.length} failed servers`);
 }
 
 async function showServerDetails(item: any) {
