@@ -11,6 +11,10 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+  releases: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -60,9 +64,7 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ github.ref_name || inputs.version }}
         name: Release ${{ github.ref_name || inputs.version }}
@@ -88,5 +90,8 @@ jobs:
           - Node.js 16.x or higher (for MCP servers)
         draft: false
         prerelease: false
+        make_latest: true
+        fail_on_unmatched_files: false
         files: |
           ${{ steps.vsix.outputs.file }}
+        token: ${{ secrets.GITHUB_TOKEN }}
