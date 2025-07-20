@@ -2,7 +2,7 @@
   "name": "vscode-mcp-autostarter",
   "displayName": "MCP Auto-Starter",
   "description": "Automatically start MCP servers when VSCode opens. Simple setup: just add 'autoStart': true to your server config.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "alankyshum",
   "icon": "icon.png",
   "author": {

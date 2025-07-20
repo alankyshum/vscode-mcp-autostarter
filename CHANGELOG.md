@@ -5,6 +5,27 @@ All notable changes to the MCP Auto-Starter extension will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-01-20
+
+### Added
+- 📦 **VS Code Marketplace** - Extension is now published and available on the VS Code Marketplace
+- 📖 **Development Guide** - Comprehensive development and publishing guide for contributors
+- 🏷️ **AI Category** - Extension properly categorized as "AI" in the marketplace
+
+### Changed
+- 📝 **README updates** - Updated installation instructions to include marketplace option
+- 🔧 **Build configuration** - Updated vsce to latest version for better publishing support
+- 📋 **Release notes** - Enhanced release notes with version history
+
+### Fixed
+- 🔧 **Publishing workflow** - Resolved vsce authentication issues with environment variable method
+
+## [0.1.1] - 2025-01-20
+
+### Changed
+- 🔧 **Dependencies** - Updated @vscode/vsce to latest version
+- 📦 **Package configuration** - Cleaned up package.json dependencies
+
 ## [0.1.0] - 2025-01-20
 
 ### Added
