@@ -52,6 +52,7 @@ jobs:
       env:
         DISPLAY: ':99.0'
         CI: 'true'
+        NODE_ENV: 'test'
         
     - name: Verify VSCE_PAT secret
       run: |

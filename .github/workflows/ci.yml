@@ -46,6 +46,7 @@ jobs:
       env:
         DISPLAY: ':99.0'
         CI: 'true'
+        NODE_ENV: 'test'
       continue-on-error: false
 
     - name: Package extension
