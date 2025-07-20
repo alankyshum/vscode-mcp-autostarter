@@ -2,6 +2,14 @@
 
 A VSCode extension that automatically starts your MCP (Model Context Protocol) servers when VSCode opens. Just add `"autoStart": true` to your server configuration.
 
+## Installation
+
+[![Install from VS Code Marketplace](https://img.shields.io/badge/Install-VS%20Code%20Marketplace-blue?style=for-the-badge&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=alankyshum.vscode-mcp-autostarter)
+
+**One-click install:** [Install MCP Auto-Starter](vscode:extension/alankyshum.vscode-mcp-autostarter)
+
+Or search for `alankyshum.vscode-mcp-autostarter` in the VS Code Extensions tab.
+
 ## Features
 
 - **Auto-start MCP servers** - Automatically starts servers with `"autoStart": true` when VSCode opens
