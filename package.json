@@ -22,7 +22,7 @@
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Other"
+    "AI"
   ],
   "galleryBanner": {
     "color": "#1e1e1e",
@@ -92,7 +92,6 @@
     "package:pre-release": "vsce package --pre-release",
     "publish:pre-release": "vsce publish --pre-release"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
@@ -101,7 +100,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/test-electron": "^2.2.0",
-    "@vscode/vsce": "^2.22.0",
+    "@vscode/vsce": "^3.6.0",
     "eslint": "^8.28.0",
     "glob": "^8.0.0",
     "mocha": "^10.0.0",
