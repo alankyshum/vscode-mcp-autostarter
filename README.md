@@ -5,20 +5,17 @@
 [![CI](https://github.com/alankyshum/vscode-mcp-autostarter/workflows/CI/badge.svg)](https://github.com/alankyshum/vscode-mcp-autostarter/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive VSCode extension that automatically starts and manages MCP (Model Context Protocol) servers with advanced monitoring, health checks, and user-friendly management features.
+A simple VSCode extension that automatically starts your MCP (Model Context Protocol) servers when VSCode opens. Just add `"autoStart": true` to your server configuration and you're done!
 
-## ✨ Features
+## ✨ Key Features
 
-- **🚀 Auto-start MCP servers** when VSCode starts with intelligent retry logic
-- **📊 Tree view** showing all configured MCP servers with real-time status
-- **🔄 Toggle auto-start** functionality for individual servers
-- **⚡ Start/Stop/Restart** servers manually with one-click actions
-- **💚 Health monitoring** with automatic failure detection and recovery
-- **📈 Performance monitoring** with detailed metrics and issue detection
-- **🛠️ Easy server management** - add, edit, and remove servers through UI
-- **🎯 Multiple server types** - support for stdio, HTTP, and SSE servers
-- **📝 Comprehensive logging** with detailed output channel
-- **⚙️ Configuration management** through VSCode settings with validation
+- **🚀 Auto-start MCP servers** - Automatically starts servers with `"autoStart": true` when VSCode opens
+- **📝 Simple setup** - Just add one line to your existing MCP configuration
+- **🌐 Works everywhere** - Local VSCode, remote SSH, Codespaces, containers - all supported
+- **📊 Clean integration** - Servers run in dedicated output channels, not terminals
+- **🔄 Live updates** - Automatically detects and applies configuration changes
+- **⚙️ Smart validation** - Validates configurations before starting servers
+- **🎯 Focused scope** - Supports stdio MCP servers (the most common type)
 
 ## 📦 Installation
 
@@ -64,68 +61,67 @@ For developers who want to build from source:
 ## 🚀 Quick Start
 
 1. Install the extension
-2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-3. Run `MCP Auto-Starter: Add Server` to add your first MCP server
-4. Configure your server settings in the tree view
-5. Enable auto-start and enjoy automatic server management!
+2. Configure your MCP servers in the MCP configuration file (use "MCP: Open User Configuration" command)
+3. Add `"autoStart": true` to any server you want to start automatically
+4. Restart VSCode or reload the window - servers with autoStart will start automatically
+5. Use the Command Palette command "MCP-AutoStarter: Enable auto-start for currently running MCP servers" to enable auto-start for existing servers
 
-## 📖 Usage
+### Example Configuration
 
-### 👀 Viewing MCP Servers
-
-The extension adds a "MCP Servers" view to the Explorer sidebar, showing:
-- **Server name and status** with detailed tooltips
-- **Auto-start configuration** (ON/OFF)
-- **Server type** (stdio, HTTP, SSE)
-- **Visual status indicators**:
-  - 🟢 **Running** - Server is active and healthy
-  - ⚫ **Stopped** - Server is not running
-  - 🟡 **Starting** - Server is being started
-  - 🔴 **Error** - Server failed to start or crashed
-  - 🔄 **Stopping** - Server is being stopped
-
-### 🎛️ Managing Servers
-
-**Tree View Actions:**
-- **Double-click** any server to view detailed information
-- **Right-click** for context menu with options:
-  - Toggle auto-start on/off
-  - Start/Stop/Restart the server
-  - View server details
-  - Edit server configuration
-  - Remove server
-  - View logs
-
-**Toolbar Actions:**
-- **Refresh** - Update server status
-- **Add Server** - Create a new MCP server configuration
-- **Restart Failed Servers** - Restart all servers in error state
-
-### Configuration
-
-The extension reads MCP server configurations from your VSCode settings (`mcp.servers`). Example configuration:
+Add this to your MCP configuration file (`mcp.json`):
 
 ```json
 {
-  "mcp": {
-    "servers": {
-      "my-server": {
-        "name": "My MCP Server",
-        "command": "node",
-        "args": ["server.js"],
-        "cwd": "/path/to/server",
-        "autoStart": true,
-        "enabled": true
-      }
+  "servers": {
+    "sequentialthinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@latest"
+      ],
+      "gallery": true,
+      "autoStart": true
     }
   }
 }
 ```
 
+## 📖 Usage
+
+### 📖 How It Works
+
+1. **Configuration Reading**: The extension uses VSCode's API to intelligently locate your MCP configuration file, working in both local and remote environments
+2. **Auto-Start Detection**: It looks for servers with `"autoStart": true` in their configuration
+3. **Process Management**: Servers are started using VSCode's output panel, so they don't occupy terminal sessions
+4. **Integration**: Started servers integrate with existing MCP commands like "MCP: List Servers" and "MCP: Stop Server"
+
+### 🎛️ Commands
+
+- **MCP-AutoStarter: Enable auto-start for currently running MCP servers** - Helps you enable auto-start for servers that are already running
+
 ### Extension Settings
 
-- `mcpAutoStarter.globalAutoStart`: Enable/disable global auto-start functionality (default: true)
-- `mcpAutoStarter.systemPrompt`: Custom system prompt for MCP chat sessions
+- `mcpAutoStarter.enabled`: Enable/disable automatic starting of MCP servers (default: true)
+- `mcpAutoStarter.retryAttempts`: Number of retry attempts when starting a server fails (default: 3)
+- `mcpAutoStarter.retryDelay`: Delay in milliseconds between retry attempts (default: 2000)
+- `mcpAutoStarter.configPath`: Custom path to the MCP configuration file. Leave empty to auto-detect. Useful for remote VSCode environments.
+
+### 🌐 Remote VSCode Support
+
+The extension uses VSCode's APIs to intelligently locate your MCP configuration, working seamlessly in all environments:
+
+- **VSCode API-based**: Uses `globalStorageUri` and other VSCode APIs to derive the correct path
+- **Smart path derivation**: Analyzes VSCode's directory structure to find the User config directory
+- **Auto-detection**: Tries multiple possible paths to find your local MCP configuration
+- **Custom path**: Set `mcpAutoStarter.configPath` in settings to specify exact location
+- **Cross-platform**: Supports macOS, Windows, and Linux configuration paths
+- **VSCode variants**: Works with both regular VSCode and VSCode Insiders
+
+For remote environments, you may need to set the custom config path:
+1. Open VSCode Settings (`Cmd/Ctrl + ,`)
+2. Search for "MCP Auto-Starter"
+3. Set "Config Path" to your local MCP configuration file path
 
 ## Development
 

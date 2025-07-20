@@ -5,36 +5,35 @@ All notable changes to the MCP Auto-Starter extension will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2024-12-19
+## [0.1.0] - 2025-01-20
 
 ### Added
-- 🚀 **Auto-start functionality** - Automatically start MCP servers when VSCode starts
-- 📊 **Tree view management** - Visual interface in Explorer sidebar showing all MCP servers
-- 🔄 **Toggle auto-start** - Enable/disable auto-start for individual servers
-- ⚡ **Manual server control** - Start, stop, and restart servers with one-click actions
-- 💚 **Health monitoring** - Automatic failure detection and recovery mechanisms
-- 📈 **Performance monitoring** - Detailed metrics and performance issue detection
-- 🛠️ **Server configuration UI** - Easy add, edit, and remove servers through webview panels
-- 🎯 **Multiple server types** - Support for stdio, HTTP, and SSE server configurations
-- 📝 **Comprehensive logging** - Detailed output channel with structured logging
-- ⚙️ **Configuration management** - Integration with VSCode settings with validation
-- 🔧 **Settings management** - Backup, restore, and reset functionality for configurations
-- 📊 **Server details view** - Detailed information panels for each server
-- 🚨 **Error handling** - Robust error handling with user-friendly messages
-- 🔄 **Automatic retries** - Intelligent retry logic for failed server starts
-- 📋 **Context menus** - Right-click actions for server management
-- 🎨 **Status indicators** - Visual status icons and tooltips
-- 📦 **VSIX packaging** - Ready for distribution and installation
+- 🚀 **Auto-start functionality** - Automatically start MCP servers when VSCode starts by reading MCP configuration
+- 📝 **Simple configuration** - Just add `"autoStart": true` to your server config in mcp.json
+- 📊 **Output panel integration** - Servers run in dedicated output channels, not terminal sessions
+- 🔄 **Configuration watching** - Automatically detects changes to MCP configuration file
+- ⚙️ **Configuration validation** - Validates server configurations before starting
+- 🎯 **Stdio server support** - Currently supports stdio-type MCP servers
+- 📝 **Comprehensive logging** - Detailed output channel with server status and logs
+- 🛠️ **Process management** - Start, stop, and restart MCP server processes
+- 🔍 **Auto-start detection** - Finds servers with autoStart enabled in configuration
+- 🎨 **VSCode integration** - Integrates with existing MCP commands
+- 🔧 **Command support** - Single command to enable auto-start for running servers
+- 🛡️ **Error handling** - Robust error handling with user-friendly messages
+- 🌐 **Multi-platform support** - Works on Windows, macOS, and Linux
+- 🔗 **Remote VSCode support** - Automatically detects and handles remote environments (SSH, Codespaces, etc.)
+- ⚙️ **Custom config path** - Option to specify custom MCP configuration file location
+- 🔍 **Smart path detection** - Tries multiple possible paths to find existing configuration
+- 📚 **Documentation** - Clear setup and usage instructions
 
 ### Technical Features
 - TypeScript implementation with full type safety
-- Modular architecture with separate managers for different concerns
+- Modular architecture with separate configuration reader and process manager
 - Event-driven design with proper cleanup and disposal
 - Comprehensive error handling and logging
-- Performance monitoring and metrics collection
-- Configuration validation and migration support
-- Webview-based UI components with message passing
-- GitHub Actions CI/CD pipeline for automated testing and releases
+- Configuration validation and file watching
+- VSCode API integration for output channels, commands, and configuration path detection
+- Smart path derivation using VSCode's globalStorageUri and directory structure analysis
 
 ### Requirements
 - VS Code 1.74.0 or higher

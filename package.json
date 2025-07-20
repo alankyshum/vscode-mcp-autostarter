@@ -1,7 +1,7 @@
 {
   "name": "vscode-mcp-autostarter",
   "displayName": "MCP Auto-Starter",
-  "description": "Automatically start and manage MCP (Model Context Protocol) servers in VSCode",
+  "description": "Automatically start MCP servers when VSCode opens. Simple setup: just add 'autoStart': true to your server config.",
   "version": "0.1.0",
   "publisher": "alankyshum",
   "author": {
@@ -40,136 +40,39 @@
   ],
   "main": "./out/src/extension.js",
   "contributes": {
-    "views": {
-      "explorer": [
-        {
-          "id": "mcpServers",
-          "name": "MCP Servers",
-          "when": "true"
-        }
-      ]
-    },
     "commands": [
       {
-        "command": "mcp-autostarter.toggleAutoStart",
-        "title": "Toggle Auto-Start",
-        "icon": "$(debug-start)"
-      },
-      {
-        "command": "mcp-autostarter.startServer",
-        "title": "Start Server",
-        "icon": "$(play)"
-      },
-      {
-        "command": "mcp-autostarter.stopServer",
-        "title": "Stop Server",
-        "icon": "$(stop)"
-      },
-      {
-        "command": "mcp-autostarter.restartServer",
-        "title": "Restart Server",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "mcp-autostarter.refreshView",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "mcp-autostarter.viewLogs",
-        "title": "View Logs",
-        "icon": "$(output)"
-      },
-      {
-        "command": "mcp-autostarter.showServerDetails",
-        "title": "Show Server Details",
-        "icon": "$(info)"
-      },
-      {
-        "command": "mcp-autostarter.addServer",
-        "title": "Add Server",
-        "icon": "$(add)"
-      },
-      {
-        "command": "mcp-autostarter.editServer",
-        "title": "Edit Server",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "mcp-autostarter.removeServer",
-        "title": "Remove Server",
-        "icon": "$(trash)"
+        "command": "mcp-autostarter.enableAutoStart",
+        "title": "Enable auto-start for currently running MCP servers",
+        "category": "MCP-AutoStarter"
       }
     ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "mcp-autostarter.refreshView",
-          "when": "view == mcpServers",
-          "group": "navigation"
-        },
-        {
-          "command": "mcp-autostarter.addServer",
-          "when": "view == mcpServers",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "mcp-autostarter.showServerDetails",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "1_info"
-        },
-        {
-          "command": "mcp-autostarter.toggleAutoStart",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "2_control"
-        },
-        {
-          "command": "mcp-autostarter.startServer",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "2_control"
-        },
-        {
-          "command": "mcp-autostarter.stopServer",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "2_control"
-        },
-        {
-          "command": "mcp-autostarter.restartServer",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "2_control"
-        },
-        {
-          "command": "mcp-autostarter.viewLogs",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "3_logs"
-        },
-        {
-          "command": "mcp-autostarter.editServer",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "4_edit"
-        },
-        {
-          "command": "mcp-autostarter.removeServer",
-          "when": "view == mcpServers && viewItem == mcpServer",
-          "group": "4_edit"
-        }
-      ]
-    },
     "configuration": {
       "title": "MCP Auto-Starter",
       "properties": {
-        "mcpAutoStarter.globalAutoStart": {
+        "mcpAutoStarter.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable global auto-start functionality"
+          "description": "Enable automatic starting of MCP servers on VSCode startup"
         },
-        "mcpAutoStarter.systemPrompt": {
+        "mcpAutoStarter.retryAttempts": {
+          "type": "number",
+          "default": 3,
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Number of retry attempts when starting a server fails"
+        },
+        "mcpAutoStarter.retryDelay": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 500,
+          "maximum": 10000,
+          "description": "Delay in milliseconds between retry attempts"
+        },
+        "mcpAutoStarter.configPath": {
           "type": "string",
           "default": "",
-          "description": "Custom system prompt to inject into MCP chat sessions",
-          "scope": "application"
+          "description": "Custom path to the MCP configuration file. Leave empty to auto-detect. Useful for remote VSCode environments."
         }
       }
     }
