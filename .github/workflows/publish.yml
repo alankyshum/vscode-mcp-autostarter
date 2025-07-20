@@ -10,6 +10,11 @@ on:
         required: true
         default: 'patch'
         type: string
+      dry_run:
+        description: 'Dry run (package only, do not publish)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -48,20 +53,44 @@ jobs:
         DISPLAY: ':99.0'
         CI: 'true'
         
-    - name: Publish to VS Code Marketplace
+    - name: Verify VSCE_PAT secret
       run: |
+        if [ -z "${{ secrets.VSCE_PAT }}" ]; then
+          echo "❌ VSCE_PAT secret is not set"
+          echo "Please add your Personal Access Token as a repository secret named 'VSCE_PAT'"
+          echo "See: https://docs.github.com/en/actions/security-guides/encrypted-secrets"
+          exit 1
+        else
+          echo "✅ VSCE_PAT secret is configured"
+        fi
+
+    - name: Package extension
+      run: npx vsce package
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+    - name: Publish to VS Code Marketplace
+      if: ${{ !inputs.dry_run }}
+      run: |
+        echo "🚀 Publishing to VS Code Marketplace..."
         if [ "${{ github.event_name }}" = "release" ]; then
           # Publish the current version for releases
+          echo "📦 Publishing current version from release"
           npx vsce publish --no-git-tag-version
         else
           # Publish with version bump for manual dispatch
+          echo "📦 Publishing with version: ${{ inputs.version }}"
           npx vsce publish ${{ inputs.version }}
         fi
+        echo "✅ Successfully published to marketplace"
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        
-    - name: Package extension
-      run: npx vsce package
+
+    - name: Dry run summary
+      if: ${{ inputs.dry_run }}
+      run: |
+        echo "🔍 Dry run completed - extension was packaged but not published"
+        echo "To publish, run this workflow again with 'Dry run' unchecked"
       
     - name: Upload VSIX artifact
       uses: actions/upload-artifact@v4

@@ -96,6 +96,26 @@ npm run lint
    npm run publish
    ```
 
+### GitHub Actions Publishing
+
+The repository includes automated publishing via GitHub Actions:
+
+1. **Set up repository secret**
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Add a new repository secret named `VSCE_PAT`
+   - Set the value to your Personal Access Token
+
+2. **Automatic publishing**
+   - Publishing happens automatically when you create a GitHub release
+   - Or manually trigger via Actions tab → "Publish to Marketplace" workflow
+
+3. **Manual workflow dispatch**
+   ```bash
+   # Go to Actions tab → "Publish to Marketplace" → "Run workflow"
+   # Choose version bump: patch, minor, major, or specific version
+   # Enable "Dry run" to test without publishing
+   ```
+
 ### Alternative Publishing Methods
 
 If the CLI method fails, you can use manual upload:
